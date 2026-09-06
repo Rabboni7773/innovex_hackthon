@@ -1,4 +1,4 @@
-// content.js - Complete Error Guard Engine with Real-Time Indicator & OCR Verification
+// content.js - Form Shield & Error Guard Engine with Live Debounced Validation & Interactive Fixes
 
 (() => {
   let userProfile = null;
@@ -26,7 +26,18 @@
   }
 
   // =========================================================================
-  // DYNAMIC "READY TO SUBMIT" INDICATOR BANNER
+  // HELPER: DEBOUNCE UTILITY
+  // =========================================================================
+  function debounce(fn, delay = 400) {
+    let timer = null;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  // =========================================================================
+  // 1. DYNAMIC "READY TO SUBMIT" INDICATOR BANNER
   // =========================================================================
   function updateReadyToSubmitIndicator(form) {
     if (!form) form = document.querySelector("form");
@@ -84,24 +95,31 @@
   }
 
   // =========================================================================
-  // DOCUMENT OCR CROSS-CHECK
+  // 2. DOCUMENT OCR CROSS-CHECK
   // =========================================================================
   function verifyAgainstUploadedDocument(fieldKey, value) {
     if (!uploadedDocumentText) return null;
     const cleanValue = value.toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (cleanValue.length < 3) return null;
+    if (cleanValue.length < 2) return null;
 
     const cleanOcr = uploadedDocumentText.replace(/[^a-z0-9]/g, "");
 
-    if (fieldKey.includes("studentid") || fieldKey.includes("roll") || fieldKey.includes("registration")) {
+    // Identity / Registration / Roll numbers
+    if (
+      fieldKey.includes("studentid") ||
+      fieldKey.includes("roll") ||
+      fieldKey.includes("registration") ||
+      fieldKey.includes("reg")
+    ) {
       if (!cleanOcr.includes(cleanValue)) {
         return `ID "${value}" not detected in your uploaded document scan.`;
       }
     }
 
+    // Name tokens (supports short names and initials >= 2 chars)
     const isPersonalName = fieldKey === "fullname" || fieldKey === "name" || fieldKey.includes("studentname");
     if (isPersonalName) {
-      const parts = value.toLowerCase().split(/\s+/).filter((p) => p.length >= 3);
+      const parts = value.toLowerCase().split(/\s+/).filter((p) => p.length >= 2);
       const matches = parts.filter((p) => uploadedDocumentText.includes(p));
       if (parts.length > 0 && matches.length === 0) {
         return `Name "${value}" does not match the text found on your document scan.`;
@@ -112,7 +130,7 @@
   }
 
   // =========================================================================
-  // LOCAL FIELD VALIDATION
+  // 3. DETERMINISTIC VALIDATION & AUTO-SUGGESTION ENGINE
   // =========================================================================
   function validateLocalField(input) {
     const val = input.value.trim();
@@ -127,59 +145,134 @@
     }
 
     let error = null;
+    let suggestedFix = null;
 
-    // Pattern Rules
+    // --- A. Email Format & Common Domain Typos ---
     if (type === "email" || name.includes("email")) {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(val)) {
-        error = "Invalid email format.";
-      } else if (val.endsWith(".con") || val.endsWith(".cmo") || val.includes("@gmial")) {
-        error = "Typo in email domain (.con / @gmial).";
+      const domainCorrections = {
+        "@gmial.com": "@gmail.com",
+        "@gmai.com": "@gmail.com",
+        "@gamil.com": "@gmail.com",
+        "@yaho.com": "@yahoo.com",
+        "@outlok.com": "@outlook.com",
+        ".con": ".com",
+        ".cmo": ".com"
+      };
+
+      let fixedVal = val;
+      for (const [typo, fix] of Object.entries(domainCorrections)) {
+        if (fixedVal.toLowerCase().includes(typo)) {
+          fixedVal = fixedVal.replace(new RegExp(typo, "i"), fix);
+          suggestedFix = fixedVal;
+          error = "Common domain typo detected.";
+          break;
+        }
       }
-    } else if (type === "tel" || name.includes("phone") || name.includes("mobile")) {
-      const phoneDigits = val.replace(/\D/g, "");
-      if (phoneDigits.length !== 10) error = "Phone number must be exactly 10 digits.";
-    } else if (name.includes("pincode") || name.includes("zip") || name.includes("postal")) {
-      const pinDigits = val.replace(/\D/g, "");
-      if (pinDigits.length !== 6) error = "PIN Code must be a 6-digit number.";
-    } else if (name.includes("ifsc")) {
-      const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/i;
-      if (!ifscPattern.test(val)) error = "Invalid IFSC Code format (e.g., SBIN0001234).";
-    } else if (name.includes("cgpa") || name.includes("percentage")) {
-      const num = parseFloat(val);
-      if (isNaN(num) || num < 0 || num > 100) error = "Score must be between 0 and 100.";
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!error && !emailPattern.test(val)) {
+        error = "Invalid email format.";
+      }
     }
 
-    // Profile Cross-Check
+    // --- B. Mobile / Phone Number Formatting ---
+    else if (type === "tel" || name.includes("phone") || name.includes("mobile")) {
+      const phoneDigits = val.replace(/\D/g, "");
+      if (phoneDigits.length === 12 && phoneDigits.startsWith("91")) {
+        suggestedFix = phoneDigits.slice(2);
+        error = "Country code prefix (+91) not needed.";
+      } else if (phoneDigits.length === 11 && phoneDigits.startsWith("0")) {
+        suggestedFix = phoneDigits.slice(1);
+        error = "Leading zero not needed.";
+      } else if (phoneDigits.length !== 10) {
+        error = "Phone number must be exactly 10 digits.";
+      }
+    }
+
+    // --- C. PIN Code (6 digits) ---
+    else if (name.includes("pincode") || name.includes("zip") || name.includes("postal")) {
+      const pinDigits = val.replace(/\D/g, "");
+      if (pinDigits.length !== 6) {
+        error = "PIN Code must be a 6-digit number.";
+      }
+    }
+
+    // --- D. IFSC Code Casing & Zero/O Correction ---
+    else if (name.includes("ifsc")) {
+      let cleaned = val.toUpperCase().trim();
+      if (cleaned.length === 11 && cleaned[4] === "O") {
+        cleaned = cleaned.slice(0, 4) + "0" + cleaned.slice(5);
+        suggestedFix = cleaned;
+        error = "IFSC 5th character must be '0' (zero), not 'O'.";
+      } else if (val !== cleaned) {
+        suggestedFix = cleaned;
+        error = "IFSC codes should be uppercase.";
+      }
+
+      const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+      if (!error && !ifscPattern.test(cleaned)) {
+        error = "Invalid IFSC Code format (e.g., SBIN0001234).";
+      }
+    }
+
+    // --- E. Score / Percentage Checks ---
+    else if (name.includes("cgpa") || name.includes("percentage")) {
+      const num = parseFloat(val);
+      if (isNaN(num) || num < 0 || num > 100) {
+        error = "Score must be between 0 and 100.";
+      }
+    }
+
+    // --- F. Profile Cross-Check & Discrepancy Suggestions ---
     if (!error && userProfile) {
       if ((type === "email" || name.includes("email")) && userProfile.email) {
         if (val.toLowerCase() !== userProfile.email.toLowerCase()) {
           const valDomain = val.split("@")[1];
           const profDomain = userProfile.email.split("@")[1];
-          if (valDomain === profDomain) error = `Differs from saved profile (${userProfile.email})`;
+          if (valDomain === profDomain) {
+            error = `Differs from profile (${userProfile.email})`;
+            suggestedFix = userProfile.email;
+          }
         }
       }
+
       if ((type === "tel" || name.includes("phone")) && userProfile.phone) {
-        if (val.replace(/\D/g, "") !== userProfile.phone.replace(/\D/g, "")) {
+        const cleanEntered = val.replace(/\D/g, "");
+        const cleanProfile = userProfile.phone.replace(/\D/g, "");
+        if (cleanEntered && cleanProfile && cleanEntered !== cleanProfile) {
           error = `Differs from profile phone (${userProfile.phone})`;
+          suggestedFix = userProfile.phone;
         }
       }
+
       const isPersonalName = name === "fullname" || name === "name" || name.includes("studentname");
-      if (isPersonalName && (userProfile.fullName || userProfile.full_name)) {
-        const storedName = userProfile.fullName || userProfile.full_name;
-        if (val.toLowerCase() !== storedName.toLowerCase()) error = `Differs from profile name: ${storedName}`;
+      const storedName = userProfile.fullName || userProfile.full_name;
+      if (isPersonalName && storedName) {
+        if (val.toLowerCase() !== storedName.toLowerCase()) {
+          error = `Differs from profile name: ${storedName}`;
+          suggestedFix = storedName;
+        }
+      }
+
+      if (name.includes("pincode") && (userProfile.pincode || userProfile.address?.zip)) {
+        const storedPin = userProfile.pincode || userProfile.address.zip;
+        if (val !== storedPin) {
+          error = `Differs from profile PIN (${storedPin})`;
+          suggestedFix = storedPin;
+        }
       }
     }
 
-    // OCR Document Cross-Check
+    // --- G. Document OCR Cross-Verification ---
     if (!error) {
       const docError = verifyAgainstUploadedDocument(name, val);
       if (docError) error = docError;
     }
 
+    // Render Feedback
     if (error) {
       flaggedFields.add(input);
-      setInputFeedback(input, "error", error);
+      setInputFeedback(input, "error", error, suggestedFix);
     } else {
       flaggedFields.delete(input);
       setInputFeedback(input, "valid");
@@ -189,7 +282,7 @@
   }
 
   // =========================================================================
-  // FILE UPLOAD AND BLUR CHECK
+  // 4. FILE UPLOAD & BACKGROUND INSPECTION
   // =========================================================================
   function setupImageInputs() {
     const fileInputs = document.querySelectorAll('input[type="file"]');
@@ -219,7 +312,7 @@
           return;
         }
 
-        setInputFeedback(fileInput, "loading", "Analyzing sharpness, crop, and OCR text...");
+        setInputFeedback(fileInput, "loading", "Analyzing sharpness, crop, and document text...");
 
         const reader = new FileReader();
         reader.onload = () => {
@@ -244,12 +337,20 @@
                 flaggedFields.delete(fileInput);
                 uploadedDocumentText = (extracted_text || "").toLowerCase();
 
-                // Re-verify existing input values against newly processed document
-                document
-                  .querySelectorAll('input[name*="id"], input[id*="id"], input[name*="roll"], input[id*="roll"], input[name*="name"], input[id*="name"]')
-                  .forEach((f) => {
-                    if (f.value.trim()) validateLocalField(f);
-                  });
+                // Re-verify existing identity/name fields against the parsed document
+                const docTargetSelector = [
+                  'input[name*="student" i]',
+                  'input[name*="roll" i]',
+                  'input[name*="reg" i]',
+                  'input[name*="name" i]',
+                  'input[id*="student" i]',
+                  'input[id*="roll" i]',
+                  'input[id*="reg" i]'
+                ].join(", ");
+
+                document.querySelectorAll(docTargetSelector).forEach((f) => {
+                  if (f.value.trim()) validateLocalField(f);
+                });
               } else {
                 uploadedDocumentText = "";
                 setInputFeedback(fileInput, "error", reason);
@@ -265,7 +366,7 @@
   }
 
   // =========================================================================
-  // PRE-SUBMIT FORM INTERCEPTION
+  // 5. PRE-SUBMIT FORM INTERCEPTION
   // =========================================================================
   function setupFormInterception() {
     document.addEventListener("submit", (e) => {
@@ -312,9 +413,9 @@
   }
 
   // =========================================================================
-  // VISUAL TOOLTIPS & BADGES
+  // 6. INLINE FEEDBACK & INTERACTIVE FIX CHIP
   // =========================================================================
-  function setInputFeedback(input, status, message = "") {
+  function setInputFeedback(input, status, message = "", suggestedFix = null) {
     clearInputFeedback(input);
     const inputKey = input.name || input.id;
     let badge = input.parentElement.querySelector(`.shield-feedback-msg[data-for="${inputKey}"]`);
@@ -327,8 +428,42 @@
 
     if (status === "error") {
       input.style.border = "2px solid #ef4444";
-      badge.textContent = `⚠️ ${message}`;
-      badge.style.cssText = "color: #dc2626; font-size: 11px; font-weight: 600; margin-top: 4px; font-family: sans-serif;";
+      badge.style.cssText = "display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 11px; font-weight: 600; margin-top: 5px; font-family: sans-serif;";
+
+      const textSpan = document.createElement("span");
+      textSpan.style.color = "#dc2626";
+      textSpan.textContent = `⚠️ ${message}`;
+      badge.appendChild(textSpan);
+
+      if (suggestedFix) {
+        const fixBtn = document.createElement("button");
+        fixBtn.type = "button";
+        fixBtn.className = "shield-fix-btn";
+        fixBtn.textContent = `Fix: "${suggestedFix}"`;
+        fixBtn.style.cssText = `
+          background-color: #eff6ff;
+          color: #2563eb;
+          border: 1px solid #93c5fd;
+          border-radius: 4px;
+          padding: 2px 8px;
+          font-size: 11px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background 0.15s ease;
+        `;
+
+        fixBtn.addEventListener("mouseover", () => (fixBtn.style.background = "#dbeafe"));
+        fixBtn.addEventListener("mouseout", () => (fixBtn.style.background = "#eff6ff"));
+
+        fixBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          input.value = suggestedFix;
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          validateLocalField(input);
+        });
+
+        badge.appendChild(fixBtn);
+      }
     } else if (status === "loading") {
       badge.textContent = `⏳ ${message}`;
       badge.style.cssText = "color: #d97706; font-size: 11px; font-weight: 600; margin-top: 4px; font-family: sans-serif;";
@@ -351,21 +486,63 @@
   }
 
   // =========================================================================
-  // INITIALIZATION & OBSERVER
+  // 7. INITIALIZATION & LIVE DEBOUNCED LISTENERS
   // =========================================================================
   function attachFieldListeners() {
     document
-      .querySelectorAll("input:not([type='hidden']):not([type='file']):not([type='submit']):not([type='checkbox']), textarea, select")
+      .querySelectorAll(
+        "input:not([type='hidden']):not([type='file']):not([type='submit']):not([type='checkbox']), textarea, select"
+      )
       .forEach((input) => {
         if (input.dataset.shieldBound) return;
         input.dataset.shieldBound = "true";
-        input.addEventListener("blur", () => validateLocalField(input));
+
+        // Debounced checker for active typing pauses
+        const debouncedValidate = debounce(() => {
+          validateLocalField(input);
+        }, 400);
+
+        // Instant validation upon field switch / tab away
+        input.addEventListener("blur", () => {
+          validateLocalField(input);
+        });
+
+        // Responsive keystroke listener
         input.addEventListener("input", () => {
+          const val = input.value.trim();
+          const name = (input.name || input.id || "").toLowerCase();
+
+          // 1. Immediately reset status if cleared
+          if (!val) {
+            clearInputFeedback(input);
+            flaggedFields.delete(input);
+            updateReadyToSubmitIndicator(input.form);
+            return;
+          }
+
+          // Clear previous error state visually while typing continues
           if (flaggedFields.has(input)) {
             clearInputFeedback(input);
             flaggedFields.delete(input);
           }
-          updateReadyToSubmitIndicator(input.form);
+
+          // 2. Instant validation on completed fixed-length formats
+          const isPhone = input.type === "tel" || name.includes("phone") || name.includes("mobile");
+          const isPin = name.includes("pincode") || name.includes("zip") || name.includes("postal");
+          const isIfsc = name.includes("ifsc");
+
+          const cleanDigits = val.replace(/\D/g, "");
+          if (
+            (isPhone && cleanDigits.length === 10) ||
+            (isPin && cleanDigits.length === 6) ||
+            (isIfsc && val.length === 11)
+          ) {
+            validateLocalField(input);
+            return;
+          }
+
+          // 3. Fallback to debounced verification on user typing pause
+          debouncedValidate();
         });
       });
 
@@ -380,9 +557,7 @@
 
   function safeAttachFieldListeners() {
     if (observer) observer.disconnect();
-
     attachFieldListeners();
-
     if (observer) {
       observer.observe(document.body, { childList: true, subtree: true });
     }
