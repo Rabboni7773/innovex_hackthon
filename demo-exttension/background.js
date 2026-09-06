@@ -1,6 +1,6 @@
 // background.js - Manifest V3 Background Service Worker
 
-const BACKEND_BASE_URL = "http://127.0.0.1:8000";
+const BACKEND_BASE_URL = "https://innovex-backend.onrender.com";
 
 // =========================================================================
 // 1. LIFECYCLE: FIRST-TIME INSTALL & ONBOARDING TRIGGER
