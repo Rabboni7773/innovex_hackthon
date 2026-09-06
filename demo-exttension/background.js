@@ -33,7 +33,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
   }
 
-  // B. Update extension icon badge
+  // B. Close the caller tab safely (used by onboarding.js upon submit)
+  if (message.action === "CLOSE_ONBOARDING") {
+    if (sender.tab?.id) {
+      chrome.tabs.remove(sender.tab.id);
+    }
+    sendResponse({ success: true });
+    return false;
+  }
+
+  // C. Update extension icon badge
   if (message.action === "SET_STATUS_BADGE") {
     if (sender.tab?.id) {
       chrome.action.setBadgeText({ tabId: sender.tab.id, text: message.text || "" });
@@ -46,16 +55,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
   }
 
-  // C. Route Image Blur Check to OpenCV backend (/check-blur)
+  // D. Route Image Blur Check to OpenCV backend (/check-blur)
   if (message.action === "EVALUATE_IMAGE_BLUR") {
     forwardToBackend("/check-blur", message.payload, sendResponse);
-    return true; // Crucial: Keeps port open for asynchronous fetch
-  }
-
-  // D. Route Pre-Submit Batch Check to LLM backend (/final_review)
-  if (message.action === "RUN_FINAL_REVIEW") {
-    forwardToBackend("/final_review", message.payload, sendResponse);
-    return true; // Crucial: Keeps port open for asynchronous fetch
+    return true; // Keep message channel open for asynchronous fetch
   }
 
   return false;

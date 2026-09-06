@@ -4,8 +4,9 @@ import cv2
 import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from llm_verifiers import need_or_not_provider, final_review_provider
 from pydantic import BaseModel
+import pytesseract
+import re
 
 load_dotenv()
 
@@ -19,25 +20,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class NeedOrNotReq(BaseModel):
-    page_snapshot : str
 
-class FianlReviewReq(BaseModel):
-    original_data : dict
-    provided_data : dict
 
-app.get("/need_or_not")
-async def need_or_not(snapshot: NeedOrNotReq):
-    result = await need_or_not_provider(snapshot.page_snapshot)
-    if result == "yes":
-        return {"should_activate": True}
-    return {"should_activate" : False}
+class ImageCheckPayload(BaseModel):
+    image_base64: str
+    field_name: str = "upload"
 
-app.get("/final_review")
-async def final_cheaker(req: FianlReviewReq):
-    result = await final_review_provider(req.original_data, req.provided_data)
-    return result
+from fastapi import FastAPI, HTTPException
+import base64
+import cv2
+import numpy as np
+import re
+import pytesseract
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class ImageCheckPayload(BaseModel):
     image_base64: str
@@ -46,46 +52,74 @@ class ImageCheckPayload(BaseModel):
 @app.post("/check-blur")
 async def check_blur(payload: ImageCheckPayload):
     try:
-        # 1. Decode base64 into a NumPy byte buffer
+        # 1. Decode base64 to byte buffer
         img_bytes = base64.b64decode(payload.image_base64)
         np_arr = np.frombuffer(img_bytes, dtype=np.uint8)
         
-        # 2. Decode bytes into an OpenCV BGR image
+        # 2. Decode bytes into OpenCV image
         image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
         if image is None:
-            return {"is_clear": False, "score": 0.0, "reason": "Failed to decode image file."}
+            return {"is_clear": False, "score": 0.0, "reason": "Failed to decode image file.", "extracted_text": ""}
 
-        # 3. Optional optimization: Resize large uploads so computation is instant
-        # Downscaling to max 1024px keeps aspect ratio and speeds up convolution
         h, w = image.shape[:2]
+
+        # 3. Scan Resolution Check
+        if w < 250 or h < 250:
+            return {
+                "is_clear": False,
+                "score": 0.0,
+                "reason": f"Scan resolution too low ({w}x{h} px). Minimum required is 250x250 px.",
+                "extracted_text": ""
+            }
+
+        # 4. Aspect-Ratio Crop Check (detects slivers/cropped edges)
+        aspect_ratio = max(h, w) / max(min(h, w), 1)
+        if aspect_ratio > 4.0:
+            return {
+                "is_clear": False,
+                "score": 0.0,
+                "reason": "Image appears severely cropped or incomplete. Please upload the full document page.",
+                "extracted_text": ""
+            }
+
+        # 5. Downscale large images for fast processing
         if max(h, w) > 1024:
             scale = 1024 / max(h, w)
             image = cv2.resize(image, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
 
-        # 4. Convert to Grayscale
+        # 6. Convert to Grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # 5. Check for lighting extremes first (dark or washed out photos skew variance)
+        # 7. Lighting / Exposure Check
         mean_brightness = float(np.mean(gray))
         if mean_brightness < 35.0:
-            return {"is_clear": False, "score": 0.0, "reason": "Image is too dark to inspect."}
+            return {"is_clear": False, "score": 0.0, "reason": "Image is too dark to read.", "extracted_text": ""}
         if mean_brightness > 235.0:
-            return {"is_clear": False, "score": 0.0, "reason": "Image is overexposed/washed out."}
+            return {"is_clear": False, "score": 0.0, "reason": "Image is overexposed or washed out.", "extracted_text": ""}
 
-        # 6. Apply Laplacian operator (using 64-bit float to prevent overflow)
+        # 8. Laplacian Variance Sharpness Check
         laplacian = cv2.Laplacian(gray, cv2.CV_64F)
-
-        # 7. Calculate variance of the Laplacian response
         variance_score = float(laplacian.var())
-
-        # Baseline threshold: ~100.0 is the standard benchmark
         BLUR_THRESHOLD = 100.0
         is_clear = variance_score >= BLUR_THRESHOLD
 
+        if not is_clear:
+            return {
+                "is_clear": False,
+                "score": round(variance_score, 2),
+                "reason": f"Image is blurry (sharpness: {round(variance_score, 1)} / {BLUR_THRESHOLD}).",
+                "extracted_text": ""
+            }
+
+        # 9. Extract Text via Local OCR (Tesseract)
+        raw_ocr = pytesseract.image_to_string(gray, config="--psm 3")
+        clean_text = re.sub(r"\s+", " ", raw_ocr).strip().lower()
+
         return {
-            "is_clear": is_clear,
+            "is_clear": True,
             "score": round(variance_score, 2),
-            "reason": "Image is sharp and clear." if is_clear else f"Image is blurry (sharpness: {round(variance_score, 1)} / {BLUR_THRESHOLD})."
+            "reason": "Document is sharp, clear, and readable.",
+            "extracted_text": clean_text
         }
 
     except Exception as e:

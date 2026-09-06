@@ -1,124 +1,182 @@
-// content.js - End-to-End AI-Assisted Form Shield Engine
+// content.js - Complete Error Guard Engine with Real-Time Indicator & OCR Verification
 
 (() => {
   let userProfile = null;
+  let uploadedDocumentText = "";
   const flaggedFields = new Set();
   let isSubmitting = false;
+  let observer = null;
 
-  // =========================================================================
-  // 1. PAGE RELEVANCE GATEKEEPER
-  // =========================================================================
   function shouldExtensionRun() {
+    if (window.location.protocol === "chrome-extension:") return false;
+
     const ignoredDomains = ["google.com", "bing.com", "youtube.com", "duckduckgo.com", "wikipedia.org"];
     const host = window.location.hostname.toLowerCase();
-    if (ignoredDomains.some((domain) => host.includes(domain))) return false;
+    if (ignoredDomains.some((d) => host.includes(d))) return false;
 
-    // High-priority triggers: password fields or file uploaders
-    if (document.querySelector('input[type="password"], input[type="file"]')) {
-      return true;
-    }
+    if (document.querySelector('input[type="password"], input[type="file"]')) return true;
 
-    // Actionable interactive form controls
-    const actionableInputs = document.querySelectorAll(
+    const actionable = document.querySelectorAll(
       'input:not([type="hidden"]):not([type="search"]):not([type="submit"]):not([type="button"]):not([type="reset"]), textarea, select'
     );
-
-    const intentKeywords = ["checkout", "register", "signup", "login", "profile", "account", "apply", "contact", "shipping"];
     const pageMeta = `${window.location.href} ${document.title}`.toLowerCase();
-    const hasIntentKeyword = intentKeywords.some((kw) => pageMeta.includes(kw));
+    const keywords = ["scholarship", "application", "checkout", "register", "signup", "login", "profile", "account", "apply", "admission"];
 
-    if (hasIntentKeyword && actionableInputs.length >= 1) return true;
-    if (actionableInputs.length >= 2) return true;
-
-    return false;
+    return (keywords.some((kw) => pageMeta.includes(kw)) && actionable.length >= 1) || actionable.length >= 2;
   }
 
   // =========================================================================
-  // 2. TIER 1: DETERMINISTIC REGEX & USER PROFILE PATTERN CHECKING
+  // DYNAMIC "READY TO SUBMIT" INDICATOR BANNER
+  // =========================================================================
+  function updateReadyToSubmitIndicator(form) {
+    if (!form) form = document.querySelector("form");
+    if (!form) return;
+
+    let indicator = form.querySelector("#shield-ready-indicator");
+    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+    if (!submitBtn) return;
+
+    if (!indicator) {
+      indicator = document.createElement("div");
+      indicator.id = "shield-ready-indicator";
+      indicator.style.cssText = `
+        padding: 12px 16px;
+        margin: 15px 0;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: Arial, sans-serif;
+      `;
+      submitBtn.insertAdjacentElement("beforebegin", indicator);
+    }
+
+    const requiredInputs = form.querySelectorAll("input[required], select[required], textarea[required]");
+    let emptyRequiredCount = 0;
+    requiredInputs.forEach((input) => {
+      if (input.type === "file") {
+        if (!input.files || input.files.length === 0) emptyRequiredCount++;
+      } else if (input.type === "checkbox") {
+        if (!input.checked) emptyRequiredCount++;
+      } else if (!input.value.trim()) {
+        emptyRequiredCount++;
+      }
+    });
+
+    if (flaggedFields.size > 0) {
+      indicator.style.background = "#fef2f2";
+      indicator.style.border = "1px solid #ef4444";
+      indicator.style.color = "#b91c1c";
+      indicator.innerHTML = `⚠️ <b>Error Guard:</b> ${flaggedFields.size} issue(s) detected. Please fix flagged items.`;
+    } else if (emptyRequiredCount > 0) {
+      indicator.style.background = "#fffbeb";
+      indicator.style.border = "1px solid #f59e0b";
+      indicator.style.color = "#b45309";
+      indicator.innerHTML = `⏳ <b>Error Guard:</b> Application in progress (${emptyRequiredCount} required field${emptyRequiredCount > 1 ? "s" : ""} remaining).`;
+    } else {
+      indicator.style.background = "#f0fdf4";
+      indicator.style.border = "1px solid #22c55e";
+      indicator.style.color = "#15803d";
+      indicator.innerHTML = `🛡️ <b>Error Guard:</b> All format and document checks passed. Ready to submit!`;
+    }
+  }
+
+  // =========================================================================
+  // DOCUMENT OCR CROSS-CHECK
+  // =========================================================================
+  function verifyAgainstUploadedDocument(fieldKey, value) {
+    if (!uploadedDocumentText) return null;
+    const cleanValue = value.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (cleanValue.length < 3) return null;
+
+    const cleanOcr = uploadedDocumentText.replace(/[^a-z0-9]/g, "");
+
+    if (fieldKey.includes("studentid") || fieldKey.includes("roll") || fieldKey.includes("registration")) {
+      if (!cleanOcr.includes(cleanValue)) {
+        return `ID "${value}" not detected in your uploaded document scan.`;
+      }
+    }
+
+    const isPersonalName = fieldKey === "fullname" || fieldKey === "name" || fieldKey.includes("studentname");
+    if (isPersonalName) {
+      const parts = value.toLowerCase().split(/\s+/).filter((p) => p.length >= 3);
+      const matches = parts.filter((p) => uploadedDocumentText.includes(p));
+      if (parts.length > 0 && matches.length === 0) {
+        return `Name "${value}" does not match the text found on your document scan.`;
+      }
+    }
+
+    return null;
+  }
+
+  // =========================================================================
+  // LOCAL FIELD VALIDATION
   // =========================================================================
   function validateLocalField(input) {
     const val = input.value.trim();
     const name = (input.name || input.id || input.placeholder || "").toLowerCase();
     const type = (input.type || "text").toLowerCase();
 
-    // Skip unedited empty fields (caught at pre-submit if required)
     if (!val) {
       clearInputFeedback(input);
       flaggedFields.delete(input);
+      updateReadyToSubmitIndicator(input.form);
       return;
     }
 
     let error = null;
 
-    // --- Pattern / Regex Rules ---
+    // Pattern Rules
     if (type === "email" || name.includes("email")) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(val)) {
         error = "Invalid email format.";
       } else if (val.endsWith(".con") || val.endsWith(".cmo") || val.includes("@gmial")) {
-        error = "Likely typo in email domain (.con / @gmial).";
+        error = "Typo in email domain (.con / @gmial).";
       }
     } else if (type === "tel" || name.includes("phone") || name.includes("mobile")) {
       const phoneDigits = val.replace(/\D/g, "");
-      if (phoneDigits.length < 7 || phoneDigits.length > 15) {
-        error = "Phone number must have 7 to 15 digits.";
-      }
-    } else if (name.includes("zip") || name.includes("postal")) {
-      if (val.length < 3 || val.length > 10) {
-        error = "Invalid ZIP / Postal code length.";
-      }
+      if (phoneDigits.length !== 10) error = "Phone number must be exactly 10 digits.";
+    } else if (name.includes("pincode") || name.includes("zip") || name.includes("postal")) {
+      const pinDigits = val.replace(/\D/g, "");
+      if (pinDigits.length !== 6) error = "PIN Code must be a 6-digit number.";
+    } else if (name.includes("ifsc")) {
+      const ifscPattern = /^[A-Z]{4}0[A-Z0-9]{6}$/i;
+      if (!ifscPattern.test(val)) error = "Invalid IFSC Code format (e.g., SBIN0001234).";
+    } else if (name.includes("cgpa") || name.includes("percentage")) {
+      const num = parseFloat(val);
+      if (isNaN(num) || num < 0 || num > 100) error = "Score must be between 0 and 100.";
     }
 
-    // --- Cross-Check Against Verified User Data (chrome.storage) ---
+    // Profile Cross-Check
     if (!error && userProfile) {
-      // Email mismatch check
       if ((type === "email" || name.includes("email")) && userProfile.email) {
         if (val.toLowerCase() !== userProfile.email.toLowerCase()) {
-          const typedDomain = val.split("@")[1];
-          const profileDomain = userProfile.email.split("@")[1];
-          if (typedDomain === profileDomain) {
-            error = `Differs from verified profile (${userProfile.email})`;
-          }
+          const valDomain = val.split("@")[1];
+          const profDomain = userProfile.email.split("@")[1];
+          if (valDomain === profDomain) error = `Differs from saved profile (${userProfile.email})`;
         }
       }
-
-      // Phone mismatch check
       if ((type === "tel" || name.includes("phone")) && userProfile.phone) {
-        const enteredClean = val.replace(/\D/g, "");
-        const profileClean = userProfile.phone.replace(/\D/g, "");
-        if (enteredClean && profileClean && enteredClean !== profileClean) {
-          error = `Differs from saved profile (${userProfile.phone})`;
+        if (val.replace(/\D/g, "") !== userProfile.phone.replace(/\D/g, "")) {
+          error = `Differs from profile phone (${userProfile.phone})`;
         }
       }
-
-      // Name mismatch check
-      if ((name.includes("fname") || name.includes("first")) && userProfile.first_name) {
-        if (val.toLowerCase() !== userProfile.first_name.toLowerCase()) {
-          error = `Expected first name: ${userProfile.first_name}`;
-        }
-      }
-      if ((name.includes("lname") || name.includes("last")) && userProfile.last_name) {
-        if (val.toLowerCase() !== userProfile.last_name.toLowerCase()) {
-          error = `Expected last name: ${userProfile.last_name}`;
-        }
-      }
-
-      // State mismatch check
-      if ((name.includes("state") || name.includes("region")) && userProfile.address?.state) {
-        if (val.toUpperCase() !== userProfile.address.state.toUpperCase()) {
-          error = `Expected state: ${userProfile.address.state}`;
-        }
-      }
-
-      // ZIP code mismatch check
-      if ((name.includes("zip") || name.includes("postal")) && userProfile.address?.zip) {
-        if (val !== userProfile.address.zip) {
-          error = `Expected ZIP code: ${userProfile.address.zip}`;
-        }
+      const isPersonalName = name === "fullname" || name === "name" || name.includes("studentname");
+      if (isPersonalName && (userProfile.fullName || userProfile.full_name)) {
+        const storedName = userProfile.fullName || userProfile.full_name;
+        if (val.toLowerCase() !== storedName.toLowerCase()) error = `Differs from profile name: ${storedName}`;
       }
     }
 
-    // Render Inline Visual Feedback
+    // OCR Document Cross-Check
+    if (!error) {
+      const docError = verifyAgainstUploadedDocument(name, val);
+      if (docError) error = docError;
+    }
+
     if (error) {
       flaggedFields.add(input);
       setInputFeedback(input, "error", error);
@@ -126,159 +184,138 @@
       flaggedFields.delete(input);
       setInputFeedback(input, "valid");
     }
+
+    updateReadyToSubmitIndicator(input.form);
   }
 
   // =========================================================================
-  // 3. IMAGE QUALITY & BLUR CHECK VIA OPENCV BACKEND (/check-blur)
+  // FILE UPLOAD AND BLUR CHECK
   // =========================================================================
   function setupImageInputs() {
     const fileInputs = document.querySelectorAll('input[type="file"]');
-
     fileInputs.forEach((fileInput) => {
       if (fileInput.dataset.shieldBound) return;
       fileInput.dataset.shieldBound = "true";
 
       fileInput.addEventListener("change", () => {
         const file = fileInput.files[0];
-        if (!file || !file.type.startsWith("image/")) return;
+        if (!file) {
+          updateReadyToSubmitIndicator(fileInput.form);
+          return;
+        }
 
-        setInputFeedback(fileInput, "loading", "Analyzing image sharpness...");
+        if (!file.type.startsWith("image/")) {
+          setInputFeedback(fileInput, "error", "Invalid file format. Please upload an image (JPG/PNG).");
+          flaggedFields.add(fileInput);
+          updateReadyToSubmitIndicator(fileInput.form);
+          return;
+        }
+
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > 2.0) {
+          setInputFeedback(fileInput, "error", `File size (${sizeMB.toFixed(2)} MB) exceeds portal limit of 2 MB.`);
+          flaggedFields.add(fileInput);
+          updateReadyToSubmitIndicator(fileInput.form);
+          return;
+        }
+
+        setInputFeedback(fileInput, "loading", "Analyzing sharpness, crop, and OCR text...");
 
         const reader = new FileReader();
         reader.onload = () => {
-          // Extract clean Base64 data without URI prefix
           const base64Data = reader.result.split(",")[1];
-
           chrome.runtime.sendMessage(
             {
               action: "EVALUATE_IMAGE_BLUR",
               payload: {
                 image_base64: base64Data,
-                field_name: fileInput.name || fileInput.id || "file_upload"
+                field_name: fileInput.name || fileInput.id || "document_upload"
               }
             },
             (response) => {
               if (chrome.runtime.lastError || !response || !response.success) {
-                setInputFeedback(fileInput, "error", "Blur detection server unreachable.");
+                setInputFeedback(fileInput, "error", "Document inspection server unreachable.");
                 return;
               }
 
-              // Server response: { is_clear, score, reason }
-              const { is_clear, reason } = response.data;
-
+              const { is_clear, reason, extracted_text } = response.data;
               if (is_clear) {
                 setInputFeedback(fileInput, "valid", reason);
                 flaggedFields.delete(fileInput);
+                uploadedDocumentText = (extracted_text || "").toLowerCase();
+
+                // Re-verify existing input values against newly processed document
+                document
+                  .querySelectorAll('input[name*="id"], input[id*="id"], input[name*="roll"], input[id*="roll"], input[name*="name"], input[id*="name"]')
+                  .forEach((f) => {
+                    if (f.value.trim()) validateLocalField(f);
+                  });
               } else {
+                uploadedDocumentText = "";
                 setInputFeedback(fileInput, "error", reason);
                 flaggedFields.add(fileInput);
               }
+              updateReadyToSubmitIndicator(fileInput.form);
             }
           );
         };
-
         reader.readAsDataURL(file);
       });
     });
   }
 
   // =========================================================================
-  // 4. DATA EXTRACTION & TIER 3 FINAL PRE-SUBMIT CHECK (/final_review)
+  // PRE-SUBMIT FORM INTERCEPTION
   // =========================================================================
   function setupFormInterception() {
     document.addEventListener("submit", (e) => {
       const form = e.target;
-      if (isSubmitting) return; // Allow programmatic submission to execute
+      if (isSubmitting) return;
 
-      // 1. Block instantly if known local regex or image blur errors exist
+      const formControls = form.querySelectorAll(
+        "input:not([type='hidden']):not([type='file']):not([type='submit']):not([type='checkbox']):not([type='radio']), textarea, select"
+      );
+
+      formControls.forEach((input) => {
+        if (input.required && !input.value.trim()) {
+          flaggedFields.add(input);
+          setInputFeedback(input, "error", "This field is required.");
+        } else {
+          validateLocalField(input);
+        }
+      });
+
+      const fileInputs = form.querySelectorAll("input[type='file'][required]");
+      fileInputs.forEach((fileInput) => {
+        if (!fileInput.files || fileInput.files.length === 0) {
+          flaggedFields.add(fileInput);
+          setInputFeedback(fileInput, "error", "Please upload the required document.");
+        }
+      });
+
+      updateReadyToSubmitIndicator(form);
+
       if (flaggedFields.size > 0) {
         e.preventDefault();
-        alert("Form Shield: Please fix the flagged errors before submitting.");
+        const firstError = flaggedFields.values().next().value;
+        if (firstError && typeof firstError.scrollIntoView === "function") {
+          firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+          firstError.focus();
+        }
+        alert("Form Shield: Please resolve all flagged issues before submitting.");
         return;
       }
 
-      // 2. Pause default submission for the holistic LLM review
-      e.preventDefault();
-
-      // Extract all form values paired with label context
-      const formData = {};
-      const formInputs = form.querySelectorAll("input:not([type='hidden']), textarea, select");
-
-      formInputs.forEach((input) => {
-        const key = input.name || input.id;
-        if (!key) return;
-
-        let labelText = "";
-        if (input.id) {
-          const labelEl = document.querySelector(`label[for="${input.id}"]`);
-          if (labelEl) labelText = labelEl.innerText.trim();
-        }
-
-        formData[key] = {
-          value: input.value.trim(),
-          type: input.type || "text",
-          label: labelText
-        };
-      });
-
-      // Update button text to inform user
-      const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
-      const originalText = submitBtn ? submitBtn.innerText || submitBtn.value : "Submit";
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        if (submitBtn.innerText) submitBtn.innerText = "Running AI Review...";
-      }
-
-      // Dispatch payload to background.js -> FastAPI /final_review
-      chrome.runtime.sendMessage(
-        {
-          action: "RUN_FINAL_REVIEW",
-          payload: {
-            user_profile: userProfile || {},
-            form_data: formData
-          }
-        },
-        (response) => {
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            if (submitBtn.innerText) submitBtn.innerText = originalText;
-          }
-
-          if (chrome.runtime.lastError || !response || !response.success) {
-            console.warn("Backend unavailable. Bypassing shield review.");
-            isSubmitting = true;
-            form.submit();
-            return;
-          }
-
-          const { is_valid, errors } = response.data;
-
-          if (is_valid) {
-            console.log("LLM Approved Form Data. Submitting...");
-            isSubmitting = true;
-            form.submit();
-          } else {
-            // Highlight faulty fields identified by LLM
-            Object.entries(errors).forEach(([fieldKey, reason]) => {
-              const targetInput = form.querySelector(`[name="${fieldKey}"], #${fieldKey}`);
-              if (targetInput) {
-                setInputFeedback(targetInput, "error", reason);
-                flaggedFields.add(targetInput);
-              }
-            });
-            alert("Form Shield: Inconsistencies detected. Please check the highlighted inputs.");
-          }
-        }
-      );
+      console.log("Form Shield: All validations and document checks passed!");
+      isSubmitting = true;
     });
   }
 
   // =========================================================================
-  // 5. VISUAL FEEDBACK INJECTION
+  // VISUAL TOOLTIPS & BADGES
   // =========================================================================
   function setInputFeedback(input, status, message = "") {
     clearInputFeedback(input);
-
     const inputKey = input.name || input.id;
     let badge = input.parentElement.querySelector(`.shield-feedback-msg[data-for="${inputKey}"]`);
     if (!badge) {
@@ -314,43 +351,57 @@
   }
 
   // =========================================================================
-  // 6. INITIALIZATION & DYNAMIC OBSERVER
+  // INITIALIZATION & OBSERVER
   // =========================================================================
   function attachFieldListeners() {
-    // Attach Tier 1 blur listeners
     document
-      .querySelectorAll("input:not([type='hidden']):not([type='file']):not([type='submit']), textarea, select")
+      .querySelectorAll("input:not([type='hidden']):not([type='file']):not([type='submit']):not([type='checkbox']), textarea, select")
       .forEach((input) => {
         if (input.dataset.shieldBound) return;
         input.dataset.shieldBound = "true";
         input.addEventListener("blur", () => validateLocalField(input));
+        input.addEventListener("input", () => {
+          if (flaggedFields.has(input)) {
+            clearInputFeedback(input);
+            flaggedFields.delete(input);
+          }
+          updateReadyToSubmitIndicator(input.form);
+        });
       });
 
-    // Attach Tier 2 file upload watchers
-    setupImageInputs();
+    document.querySelectorAll("input[type='checkbox']").forEach((cb) => {
+      if (cb.dataset.shieldBound) return;
+      cb.dataset.shieldBound = "true";
+      cb.addEventListener("change", () => updateReadyToSubmitIndicator(cb.form));
+    });
 
-    // Attach Tier 3 pre-submit handler
-    setupFormInterception();
+    setupImageInputs();
+  }
+
+  function safeAttachFieldListeners() {
+    if (observer) observer.disconnect();
+
+    attachFieldListeners();
+
+    if (observer) {
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
   }
 
   async function initializeEngine() {
     if (!shouldExtensionRun()) return;
 
-    // Set extension badge to ON in toolbar
-    chrome.runtime.sendMessage({
-      action: "SET_STATUS_BADGE",
-      text: "ON",
-      color: "#2563eb"
-    });
-
-    // Retrieve verified install profile
+    chrome.runtime.sendMessage({ action: "SET_STATUS_BADGE", text: "ON", color: "#2563eb" });
     const stored = await chrome.storage.local.get(["appUser"]);
     userProfile = stored.appUser || null;
 
-    attachFieldListeners();
+    setupFormInterception();
+    safeAttachFieldListeners();
+    updateReadyToSubmitIndicator();
 
-    // Observe SPA DOM changes (for dynamic forms and modals)
-    const observer = new MutationObserver(() => attachFieldListeners());
+    observer = new MutationObserver(() => {
+      safeAttachFieldListeners();
+    });
     observer.observe(document.body, { childList: true, subtree: true });
   }
 

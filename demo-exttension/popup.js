@@ -7,11 +7,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1. Read stored profile to display who is active
   const { appUser } = await chrome.storage.local.get(["appUser"]);
 
-  if (appUser && appUser.full_name) {
-    userStatus.innerHTML = `Active profile:<br><span class="user-name">${appUser.full_name}</span>`;
-  } else {
-    userStatus.textContent = "No profile configured yet.";
-  }
+  const name = appUser?.fullName || appUser?.full_name;
+if (name) {
+  userStatus.innerHTML = `Active profile:<br><span class="user-name">${name}</span>`;
+} else {
+  userStatus.textContent = "No profile configured yet.";
+}
 
   // 2. Dispatch message to background.js when button is clicked
   editBtn.addEventListener("click", () => {

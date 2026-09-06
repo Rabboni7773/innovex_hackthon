@@ -1,69 +1,119 @@
-// onboarding.js
+const form = document.getElementById("personalForm");
 
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("profileForm");
-  const statusMsg = document.getElementById("statusMessage");
 
-  // 1. Pre-fill form if user has previously saved data
-  chrome.storage.local.get(["appUser"], (result) => {
-    if (result.appUser) {
-      const u = result.appUser;
-      document.getElementById("firstName").value = u.first_name || "";
-      document.getElementById("middleName").value = u.middle_name || "";
-      document.getElementById("lastName").value = u.last_name || "";
-      document.getElementById("email").value = u.email || "";
-      document.getElementById("phone").value = u.phone || "";
-      document.getElementById("street").value = u.address?.street || "";
-      document.getElementById("city").value = u.address?.city || "";
-      document.getElementById("state").value = u.address?.state || "";
-      document.getElementById("zip").value = u.address?.zip || "";
-    }
-  });
+// ==========================================
+// GET USER DATA FROM YOUR FORM DOM
+// ==========================================
 
-  // 2. Handle submission
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+function getUserData() {
 
-    const firstName = document.getElementById("firstName").value.trim();
-    const middleName = document.getElementById("middleName").value.trim();
-    const lastName = document.getElementById("lastName").value.trim();
+    const data = {};
 
-    // Assemble unified profile structure
-    const userData = {
-      first_name: firstName,
-      middle_name: middleName,
-      last_name: lastName,
-      full_name: [firstName, middleName, lastName].filter(Boolean).join(" "),
-      email: document.getElementById("email").value.trim().toLowerCase(),
-      phone: document.getElementById("phone").value.trim(),
-      address: {
-        street: document.getElementById("street").value.trim(),
-        city: document.getElementById("city").value.trim(),
-        state: document.getElementById("state").value.trim().toUpperCase(),
-        zip: document.getElementById("zip").value.trim()
-      },
-      updated_at: new Date().toISOString()
-    };
+    const fields = form.querySelectorAll(
+        "input, select, textarea"
+    );
 
-    // 3. Save into non-volatile chrome.storage.local
-    chrome.storage.local.set({ appUser: userData }, () => {
-      if (chrome.runtime.lastError) {
-        showStatus(`Failed to save: ${chrome.runtime.lastError.message}`, "error");
-        return;
-      }
+    fields.forEach(function (field) {
 
-      showStatus("Profile saved successfully! You can now close this tab.", "success");
+        // Ignore fields without name
+        if (!field.name) {
+            return;
+        }
 
-      // Optional: Auto-close the tab after 1.5 seconds
-      setTimeout(() => {
-        window.close();
-      }, 1500);
+        // File input
+        if (field.type === "file") {
+
+            if (field.files.length > 0) {
+
+                const file = field.files[0];
+
+                data[field.name] = {
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileSize: file.size
+                };
+
+            } else {
+
+                data[field.name] = "No file selected";
+
+            }
+
+        }
+
+        // Normal fields
+        else {
+
+            data[field.name] = field.value;
+
+        }
+
     });
-  });
 
-  function showStatus(text, type) {
-    statusMsg.textContent = text;
-    statusMsg.className = type === "success" ? "status-success" : "status-error";
-    statusMsg.style.display = "block";
-  }
+
+    console.log("================================");
+    console.log("📋 MY FORM DATA");
+    console.log("================================");
+
+    console.table(data);
+
+    return data;
+}
+
+
+// ==========================================
+// MAKE getUserData() AVAILABLE IN CONSOLE
+// ==========================================
+
+window.getUserData = getUserData;
+
+
+// ==========================================
+// SUBMIT
+// ==========================================
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const userData = getUserData();
+
+  chrome.storage.local.set({ appUser: userData }, function () {
+    console.log("🔒 Data saved to chrome.storage.local");
+
+    // Inform background.js to terminate this tab
+    chrome.runtime.sendMessage({ action: "CLOSE_ONBOARDING" });
+  });
+});
+
+
+// ==========================================
+// SHOW CURRENT DATA WHEN FIELD CHANGES
+// ==========================================
+
+form.addEventListener("input", function (event) {
+
+    console.log(
+        "Changed:",
+        event.target.name,
+        "→",
+        event.target.value
+    );
+
+});
+
+
+// ==========================================
+// FILE CHANGE
+// ==========================================
+
+form.addEventListener("change", function (event) {
+
+    if (event.target.type === "file") {
+
+        console.log(
+            "📄 File selected:",
+            event.target.files[0]
+        );
+
+    }
+
 });
