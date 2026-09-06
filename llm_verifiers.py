@@ -1,8 +1,11 @@
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
-from .PROMPTS import need_or_not_human, need_or_not_system, FINAL_VERIFIER_HUMAN, FINAL_VERIFIER_SYSTEM
+from PROMPTS import need_or_not_human, need_or_not_system, FINAL_VERIFIER_HUMAN, FINAL_VERIFIER_SYSTEM
 from pydantic import BaseModel, Field
 from typing import Literal
+from dotenv import load_dotenv
+
+load_dotenv()
 
 model = ChatGroq(model = "openai/gtp-oss-120b")
 
@@ -11,7 +14,7 @@ class NeedOrNot(BaseModel):
 need_or_not_model = model.with_structured_output(NeedOrNot)
 
 class FinalReview(BaseModel):
-    incorrect_fields : dict[str, str] = Field(..., description="A dictionary of fields that were incorrectly classified, with the field name as the key and the reason for misclassification as the value", default=None)
+    incorrect_fields : dict[str, str] = Field(description="A dictionary of fields that were incorrectly classified, with the field name as the key and the reason for misclassification as the value", default=None)
 final_review_model = model.with_structured_output(FinalReview)
 
 

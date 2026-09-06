@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from .llm_verifiers import need_or_not_provider, final_review_provider
+from llm_verifiers import need_or_not_provider, final_review_provider
 from pydantic import BaseModel
 
 load_dotenv()
@@ -43,7 +43,7 @@ class ImageCheckPayload(BaseModel):
     image_base64: str
     field_name: str = "upload"
 
-@app.post("/api/check-blur")
+@app.post("/check-blur")
 async def check_blur(payload: ImageCheckPayload):
     try:
         # 1. Decode base64 into a NumPy byte buffer

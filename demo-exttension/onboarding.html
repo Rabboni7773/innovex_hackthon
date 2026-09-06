@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup Your Profile - Form Shield</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --error: #ef4444;
+      --success: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; }
+    .card { background: var(--card-bg); width: 100%; max-width: 580px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); padding: 32px; }
+    .header { margin-bottom: 24px; }
+    .header h1 { font-size: 22px; font-weight: 700; }
+    .header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+    
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { margin-bottom: 16px; }
+    
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    label .required { color: var(--error); }
+    
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background-color 0.2s;
+    }
+    .btn-submit:hover { background: var(--primary-hover); }
+    
+    #statusMessage {
+      display: none;
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      text-align: center;
+      font-weight: 500;
+    }
+    .status-success { background: #dcfce7; color: var(--success); border: 1px solid #bbf7d0; }
+    .status-error { background: #fee2e2; color: var(--error); border: 1px solid #fecaca; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <h1>Welcome to Form Shield</h1>
+      <p>Configure your verified profile so our extension can cross-check forms and catch typos accurately.</p>
+    </div>
+
+    <form id="profileForm">
+      <!-- Names -->
+      <div class="grid-3 form-group">
+        <div>
+          <label for="firstName">First Name <span class="required">*</span></label>
+          <input type="text" id="firstName" required placeholder="Alex" />
+        </div>
+        <div>
+          <label for="middleName">Middle Name</label>
+          <input type="text" id="middleName" placeholder="J." />
+        </div>
+        <div>
+          <label for="lastName">Last Name <span class="required">*</span></label>
+          <input type="text" id="lastName" required placeholder="Muller" />
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="grid-2 form-group">
+        <div>
+          <label for="email">Email Address <span class="required">*</span></label>
+          <input type="email" id="email" required placeholder="alex.muller@example.com" />
+        </div>
+        <div>
+          <label for="phone">Phone Number <span class="required">*</span></label>
+          <input type="tel" id="phone" required placeholder="+1-555-0192" />
+        </div>
+      </div>
+
+      <!-- Street Address -->
+      <div class="form-group">
+        <label for="street">Street Address <span class="required">*</span></label>
+        <input type="text" id="street" required placeholder="404 Congress Ave, Apt 12B" />
+      </div>
+
+      <!-- City, State, ZIP -->
+      <div class="grid-3 form-group">
+        <div>
+          <label for="city">City <span class="required">*</span></label>
+          <input type="text" id="city" required placeholder="Austin" />
+        </div>
+        <div>
+          <label for="state">State / Province <span class="required">*</span></label>
+          <input type="text" id="state" required placeholder="TX" maxlength="2" style="text-transform: uppercase;" />
+        </div>
+        <div>
+          <label for="zip">ZIP / Postal Code <span class="required">*</span></label>
+          <input type="text" id="zip" required placeholder="78701" />
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="saveBtn">Save Profile & Get Started</button>
+      <div id="statusMessage"></div>
+    </form>
+  </div>
+
+  <script src="onboarding.js"></script>
+</body>
+</html>
