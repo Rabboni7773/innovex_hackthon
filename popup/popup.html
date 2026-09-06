@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Error Guard</title>
+
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+
+            <div class="logo">
+                🛡️
+            </div>
+
+            <div>
+                <h1>Error Guard</h1>
+                <p>Pre-Submission Error Checker</p>
+            </div>
+
+        </div>
+
+
+        <!-- Status -->
+        <div class="status-card">
+
+            <div class="status-indicator"></div>
+
+            <div class="status-text">
+                <span class="status-title">Extension Status</span>
+                <span class="status-value" id="status">
+                    Active
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- Current Page -->
+        <div class="page-card">
+
+            <h2>Current Page</h2>
+
+            <p id="currentPage">
+                Checking page...
+            </p>
+
+        </div>
+
+
+        <!-- Validation Summary -->
+        <div class="summary">
+
+            <h2>Validation Summary</h2>
+
+            <div class="summary-grid">
+
+                <div class="summary-item">
+                    <span class="number" id="documentsChecked">
+                        0
+                    </span>
+
+                    <span class="label">
+                        Documents
+                    </span>
+                </div>
+
+
+                <div class="summary-item">
+                    <span class="number success" id="passed">
+                        0
+                    </span>
+
+                    <span class="label">
+                        Passed
+                    </span>
+                </div>
+
+
+                <div class="summary-item">
+                    <span class="number error" id="errors">
+                        0
+                    </span>
+
+                    <span class="label">
+                        Errors
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Main Status -->
+        <div class="ready-card" id="readyCard">
+
+            <div class="ready-icon" id="readyIcon">
+                ✓
+            </div>
+
+            <div>
+                <h2 id="readyTitle">
+                    Ready to Check
+                </h2>
+
+                <p id="readyMessage">
+                    Fill the form and upload your document.
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- Buttons -->
+        <div class="buttons">
+
+            <button id="scanButton" class="scan-button">
+                🔍 Scan Page
+            </button>
+
+            <button id="clearButton" class="clear-button">
+                Clear
+            </button>
+
+        </div>
+
+
+        <!-- Footer -->
+        <div class="footer">
+
+            <span>🛡️ Error Guard</span>
+
+            <span>v1.0</span>
+
+        </div>
+
+    </div>
+
+    <script src="popup.js"></script>
+
+</body>
+
+</html>
