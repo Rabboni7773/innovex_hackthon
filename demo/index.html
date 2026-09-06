@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Scholarship Application Portal</title>
+    <title>Personal Details</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -14,608 +12,315 @@
 
 <div class="container">
 
-    <!-- HEADER -->
-
+    <!-- Header -->
     <header class="header">
-
-        <div class="logo">
-            🎓
-        </div>
-
-        <div>
-            <h1>Scholarship Application Portal</h1>
-            <p>Student Scholarship Management System</p>
-        </div>
-
+        <h1>Personal Details</h1>
+        
     </header>
 
 
-    
+    <form id="personalForm">
 
-    <!-- FORM -->
-
-    <form id="scholarshipForm">
-
-
-        <!-- ================================================= -->
-        <!-- STEP 1 : PERSONAL DETAILS -->
-        <!-- ================================================= -->
-
+        <!-- ================= PERSONAL INFORMATION ================= -->
         <section class="form-section">
 
-            <h2>1. Personal Details</h2>
-
-            <p class="section-description">
-                Enter your basic personal information.
-            </p>
-
+            <h2>Personal Information</h2>
 
             <div class="form-grid">
 
                 <div class="form-group">
-
-                    <label for="fullName">
-                        Full Name <span>*</span>
-                    </label>
-
+                    <label for="fullName">Full Name *</label>
                     <input
                         type="text"
                         id="fullName"
                         name="fullName"
-                        placeholder="Enter full name"
+                        placeholder="Enter your full name"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="dob">
-                        Date of Birth <span>*</span>
-                    </label>
-
+                    <label for="dob">Date of Birth *</label>
                     <input
                         type="date"
                         id="dob"
                         name="dob"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="gender">
-                        Gender <span>*</span>
-                    </label>
-
+                    <label for="gender">Gender *</label>
                     <select id="gender" name="gender" required>
-
-                        <option value="">
-                            Select Gender
-                        </option>
-
-                        <option value="male">
-                            Male
-                        </option>
-
-                        <option value="female">
-                            Female
-                        </option>
-
-                        <option value="other">
-                            Other
-                        </option>
-
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
                     </select>
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="category">
-                        Category <span>*</span>
-                    </label>
-
-                    <select id="category" name="category" required>
-
-                        <option value="">
-                            Select Category
-                        </option>
-
-                        <option value="general">
-                            General
-                        </option>
-
-                        <option value="obc">
-                            OBC
-                        </option>
-
-                        <option value="sc">
-                            SC
-                        </option>
-
-                        <option value="st">
-                            ST
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="nationality">
-                        Nationality <span>*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        id="nationality"
-                        name="nationality"
-                        placeholder="Enter nationality"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="studentId">
-                        Student ID <span>*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        id="studentId"
-                        name="studentId"
-                        placeholder="Example: STU2026001"
-                        required
-                    >
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================================================= -->
-        <!-- STEP 2 : CONTACT DETAILS -->
-        <!-- ================================================= -->
-
-        <section class="form-section">
-
-            <h2>2. Contact Details</h2>
-
-            <p class="section-description">
-                Provide your contact information.
-            </p>
-
-
-            <div class="form-grid">
-
-                <div class="form-group">
-
-                    <label for="email">
-                        Email Address <span>*</span>
-                    </label>
-
+                    <label for="email">Email Address *</label>
                     <input
                         type="email"
                         id="email"
                         name="email"
-                        placeholder="student@example.com"
+                        placeholder="Enter email address"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="phone">
-                        Mobile Number <span>*</span>
-                    </label>
-
+                    <label for="phone">Mobile Number *</label>
                     <input
                         type="tel"
                         id="phone"
                         name="phone"
-                        placeholder="Enter 10 digit mobile number"
+                        placeholder="Enter mobile number"
                         maxlength="10"
                         required
                     >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="alternatePhone">
-                        Alternate Mobile Number
-                    </label>
-
-                    <input
-                        type="tel"
-                        id="alternatePhone"
-                        name="alternatePhone"
-                        maxlength="10"
-                        placeholder="Optional"
-                    >
-
                 </div>
 
             </div>
-
         </section>
 
 
-        <!-- ================================================= -->
-        <!-- STEP 3 : ACADEMIC DETAILS -->
-        <!-- ================================================= -->
-
+        <!-- ================= IDENTITY DETAILS ================= -->
         <section class="form-section">
 
-            <h2>3. Academic Details</h2>
-
-            <p class="section-description">
-                Enter your current academic information.
-            </p>
-
+            <h2>Identity Details</h2>
 
             <div class="form-grid">
 
                 <div class="form-group">
+                    <label for="aadhaarNumber">Aadhaar Number *</label>
+                    <input
+                        type="text"
+                        id="aadhaarNumber"
+                        name="aadhaarNumber"
+                        placeholder="Enter 12-digit Aadhaar number"
+                        maxlength="12"
+                        required
+                    >
+                </div>
 
-                    <label for="college">
-                        College / University <span>*</span>
-                    </label>
+                <div class="form-group">
+                    <label for="panNumber">PAN Number *</label>
+                    <input
+                        type="text"
+                        id="panNumber"
+                        name="panNumber"
+                        placeholder="Enter PAN number"
+                        maxlength="10"
+                        style="text-transform: uppercase;"
+                        required
+                    >
+                </div>
 
+                <div class="form-group">
+                    <label for="dlNumber">Driving Licence Number</label>
+                    <input
+                        type="text"
+                        id="dlNumber"
+                        name="dlNumber"
+                        placeholder="Enter Driving Licence number"
+                    >
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= CONTACT DETAILS ================= -->
+        <section class="form-section">
+
+            <h2>Contact Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="alternatePhone">Alternate Mobile Number</label>
+                    <input
+                        type="tel"
+                        id="alternatePhone"
+                        name="alternatePhone"
+                        placeholder="Enter alternate mobile number"
+                        maxlength="10"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyContact">Emergency Contact Number</label>
+                    <input
+                        type="tel"
+                        id="emergencyContact"
+                        name="emergencyContact"
+                        placeholder="Enter emergency contact"
+                        maxlength="10"
+                    >
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= ACADEMIC DETAILS ================= -->
+        <section class="form-section">
+
+            <h2>Academic Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="qualification">Highest Qualification</label>
+                    <input
+                        type="text"
+                        id="qualification"
+                        name="qualification"
+                        placeholder="e.g. B.Tech"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="college">College / Institution</label>
                     <input
                         type="text"
                         id="college"
                         name="college"
                         placeholder="Enter college name"
-                        required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="course">
-                        Course <span>*</span>
-                    </label>
-
-                    <select id="course" name="course" required>
-
-                        <option value="">
-                            Select Course
-                        </option>
-
-                        <option value="btech">
-                            B.Tech
-                        </option>
-
-                        <option value="bsc">
-                            B.Sc
-                        </option>
-
-                        <option value="bca">
-                            BCA
-                        </option>
-
-                        <option value="be">
-                            B.E
-                        </option>
-
-                        <option value="other">
-                            Other
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="branch">
-                        Branch <span>*</span>
-                    </label>
-
+                    <label for="course">Course / Branch</label>
                     <input
                         type="text"
-                        id="branch"
-                        name="branch"
-                        placeholder="Example: Computer Science"
-                        required
+                        id="course"
+                        name="course"
+                        placeholder="e.g. Computer Science"
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="year">
-                        Current Year <span>*</span>
-                    </label>
-
-                    <select id="year" name="year" required>
-
-                        <option value="">
-                            Select Year
-                        </option>
-
-                        <option value="1">
-                            1st Year
-                        </option>
-
-                        <option value="2">
-                            2nd Year
-                        </option>
-
-                        <option value="3">
-                            3rd Year
-                        </option>
-
-                        <option value="4">
-                            4th Year
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="semester">
-                        Current Semester <span>*</span>
-                    </label>
-
-                    <select id="semester" name="semester" required>
-
-                        <option value="">
-                            Select Semester
-                        </option>
-
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="rollNumber">
-                        Roll Number <span>*</span>
-                    </label>
-
+                    <label for="rollNumber">Roll Number</label>
                     <input
                         type="text"
                         id="rollNumber"
                         name="rollNumber"
                         placeholder="Enter roll number"
-                        required
                     >
-
                 </div>
 
+                <div class="form-group">
+                    <label for="yearOfStudy">Year of Study</label>
+                    <select id="yearOfStudy" name="yearOfStudy">
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
 
                 <div class="form-group">
-
-                    <label for="registrationNumber">
-                        Registration Number <span>*</span>
-                    </label>
-
+                    <label for="percentage">Percentage / CGPA</label>
                     <input
                         type="text"
-                        id="registrationNumber"
-                        name="registrationNumber"
-                        required
+                        id="percentage"
+                        name="percentage"
+                        placeholder="Enter percentage or CGPA"
                     >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="cgpa">
-                        Current CGPA / Percentage <span>*</span>
-                    </label>
-
-                    <input
-                        type="number"
-                        id="cgpa"
-                        name="cgpa"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        placeholder="Example: 85.50"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="tenthPercentage">
-                        10th Percentage <span>*</span>
-                    </label>
-
-                    <input
-                        type="number"
-                        id="tenthPercentage"
-                        name="tenthPercentage"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="twelfthPercentage">
-                        12th / Diploma Percentage
-                    </label>
-
-                    <input
-                        type="number"
-                        id="twelfthPercentage"
-                        name="twelfthPercentage"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                    >
-
                 </div>
 
             </div>
-
         </section>
 
 
-        <!-- ================================================= -->
-        <!-- STEP 4 : FAMILY DETAILS -->
-        <!-- ================================================= -->
-
+        <!-- ================= FAMILY DETAILS ================= -->
         <section class="form-section">
 
-            <h2>4. Family Details</h2>
-
-            <p class="section-description">
-                Provide family and income information.
-            </p>
-
+            <h2>Family Details</h2>
 
             <div class="form-grid">
 
                 <div class="form-group">
-
-                    <label for="fatherName">
-                        Father / Guardian Name <span>*</span>
-                    </label>
-
+                    <label for="fatherName">Father's Name *</label>
                     <input
                         type="text"
                         id="fatherName"
                         name="fatherName"
+                        placeholder="Enter father's name"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="motherName">
-                        Mother Name
-                    </label>
-
+                    <label for="motherName">Mother's Name *</label>
                     <input
                         type="text"
                         id="motherName"
                         name="motherName"
+                        placeholder="Enter mother's name"
+                        required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="occupation">
-                        Parent / Guardian Occupation <span>*</span>
-                    </label>
-
+                    <label for="fatherOccupation">Father's Occupation</label>
                     <input
                         type="text"
-                        id="occupation"
-                        name="occupation"
-                        required
+                        id="fatherOccupation"
+                        name="fatherOccupation"
+                        placeholder="Enter occupation"
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="annualIncome">
-                        Annual Family Income <span>*</span>
-                    </label>
-
+                    <label for="motherOccupation">Mother's Occupation</label>
                     <input
-                        type="number"
-                        id="annualIncome"
-                        name="annualIncome"
-                        placeholder="Enter annual income"
-                        required
+                        type="text"
+                        id="motherOccupation"
+                        name="motherOccupation"
+                        placeholder="Enter occupation"
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="familyMembers">
-                        Number of Family Members <span>*</span>
-                    </label>
-
+                    <label for="familyIncome">Annual Family Income</label>
                     <input
                         type="number"
-                        id="familyMembers"
-                        name="familyMembers"
-                        min="1"
-                        required
+                        id="familyIncome"
+                        name="familyIncome"
+                        placeholder="Enter annual family income"
                     >
+                </div>
 
+                <div class="form-group">
+                    <label for="siblings">Number of Siblings</label>
+                    <input
+                        type="number"
+                        id="siblings"
+                        name="siblings"
+                        min="0"
+                        placeholder="Enter number of siblings"
+                    >
                 </div>
 
             </div>
-
         </section>
 
 
-        <!-- ================================================= -->
-        <!-- STEP 5 : ADDRESS -->
-        <!-- ================================================= -->
-
+        <!-- ================= ADDRESS DETAILS ================= -->
         <section class="form-section">
 
-            <h2>5. Address Details</h2>
-
-            <p class="section-description">
-                Enter your permanent address.
-            </p>
-
+            <h2>Address Details</h2>
 
             <div class="form-grid">
 
                 <div class="form-group full-width">
-
-                    <label for="address">
-                        Address <span>*</span>
-                    </label>
-
+                    <label for="address">Address *</label>
                     <textarea
                         id="address"
                         name="address"
@@ -623,340 +328,150 @@
                         placeholder="Enter complete address"
                         required
                     ></textarea>
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="city">
-                        Village / Town / City <span>*</span>
-                    </label>
-
+                    <label for="city">City *</label>
                     <input
                         type="text"
                         id="city"
                         name="city"
+                        placeholder="Enter city"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="district">
-                        District <span>*</span>
-                    </label>
-
+                    <label for="district">District *</label>
                     <input
                         type="text"
                         id="district"
                         name="district"
+                        placeholder="Enter district"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="state">
-                        State <span>*</span>
-                    </label>
-
-                    <select id="state" name="state" required>
-
-                        <option value="">
-                            Select State
-                        </option>
-
-                        <option>Andhra Pradesh</option>
-                        <option>Telangana</option>
-                        <option>Karnataka</option>
-                        <option>Tamil Nadu</option>
-                        <option>Kerala</option>
-                        <option>Maharashtra</option>
-                        <option>Other</option>
-
-                    </select>
-
+                    <label for="state">State *</label>
+                    <input
+                        type="text"
+                        id="state"
+                        name="state"
+                        placeholder="Enter state"
+                        required
+                    >
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="pincode">
-                        PIN Code <span>*</span>
-                    </label>
-
+                    <label for="pincode">PIN Code *</label>
                     <input
                         type="text"
                         id="pincode"
                         name="pincode"
+                        placeholder="Enter 6-digit PIN code"
                         maxlength="6"
                         required
                     >
-
                 </div>
 
             </div>
-
         </section>
 
 
-        <!-- ================================================= -->
-        <!-- STEP 6 : BANK DETAILS -->
-        <!-- ================================================= -->
-
+        <!-- ================= BANK DETAILS ================= -->
         <section class="form-section">
 
-            <h2>6. Bank Details</h2>
-
-            <p class="section-description">
-                Use dummy information while testing Error Guard.
-            </p>
-
+            <h2>Bank Details</h2>
 
             <div class="form-grid">
 
                 <div class="form-group">
-
-                    <label for="accountHolder">
-                        Account Holder Name <span>*</span>
-                    </label>
-
+                    <label for="accountHolderName">Account Holder Name *</label>
                     <input
                         type="text"
-                        id="accountHolder"
-                        name="accountHolder"
+                        id="accountHolderName"
+                        name="accountHolderName"
+                        placeholder="Enter account holder name"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="bankName">
-                        Bank Name <span>*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        id="bankName"
-                        name="bankName"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="accountNumber">
-                        Account Number <span>*</span>
-                    </label>
-
+                    <label for="accountNumber">Bank Account Number *</label>
                     <input
                         type="text"
                         id="accountNumber"
                         name="accountNumber"
+                        placeholder="Enter bank account number"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="ifsc">
-                        IFSC Code <span>*</span>
-                    </label>
-
+                    <label for="ifsc">IFSC Code *</label>
                     <input
                         type="text"
                         id="ifsc"
                         name="ifsc"
-                        placeholder="Example: SBIN0001234"
+                        placeholder="Enter IFSC code"
+                        maxlength="11"
+                        style="text-transform: uppercase;"
                         required
                     >
+                </div>
 
+                <div class="form-group">
+                    <label for="bankName">Bank Name *</label>
+                    <input
+                        type="text"
+                        id="bankName"
+                        name="bankName"
+                        placeholder="Enter bank name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="branchName">Branch Name</label>
+                    <input
+                        type="text"
+                        id="branchName"
+                        name="branchName"
+                        placeholder="Enter branch name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="accountType">Account Type</label>
+                    <select id="accountType" name="accountType">
+                        <option value="">Select Account Type</option>
+                        <option value="Savings">Savings</option>
+                        <option value="Current">Current</option>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
 
             </div>
-
         </section>
 
 
-        <!-- ================================================= -->
-        <!-- STEP 7 : SCHOLARSHIP DETAILS -->
-        <!-- ================================================= -->
+   
 
-        <section class="form-section">
+        <!-- ================= SUBMIT ================= -->
+        <div class="submit-area">
 
-            <h2>7. Scholarship Details</h2>
+            <button
+                type="submit"
+                id="submitButton"
+                class="submit-button"
+            >
+                Submit Details
+            </button>
 
-            <p class="section-description">
-                Select the scholarship you are applying for.
-            </p>
+            
 
-
-            <div class="form-grid">
-
-                <div class="form-group">
-
-                    <label for="scholarshipType">
-                        Scholarship Type <span>*</span>
-                    </label>
-
-                    <select
-                        id="scholarshipType"
-                        name="scholarshipType"
-                        required
-                    >
-
-                        <option value="">
-                            Select Scholarship
-                        </option>
-
-                        <option value="merit">
-                            Merit Scholarship
-                        </option>
-
-                        <option value="income">
-                            Income Based Scholarship
-                        </option>
-
-                        <option value="minority">
-                            Minority Scholarship
-                        </option>
-
-                        <option value="research">
-                            Research Scholarship
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="applicationYear">
-                        Application Year <span>*</span>
-                    </label>
-
-                    <select
-                        id="applicationYear"
-                        name="applicationYear"
-                        required
-                    >
-
-                        <option value="">
-                            Select Year
-                        </option>
-
-                        <option value="2026-27">
-                            2026-27
-                        </option>
-
-                        <option value="2027-28">
-                            2027-28
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group full-width">
-
-                    <label for="reason">
-                        Reason for Applying <span>*</span>
-                    </label>
-
-                    <textarea
-                        id="reason"
-                        name="reason"
-                        rows="4"
-                        placeholder="Explain why you are applying for this scholarship"
-                        required
-                    ></textarea>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-    
-
-        <!-- ================================================= -->
-        <!-- DECLARATION -->
-        <!-- ================================================= -->
-
-        <section class="form-section">
-
-            <h2>9. Declaration</h2>
-
-            <label class="declaration">
-
-                <input
-                    type="checkbox"
-                    id="declaration1"
-                    name="declaration1"
-                    required
-                >
-
-                <span>
-                    I confirm that the information provided in
-                    this application is true and correct.
-                </span>
-
-            </label>
-
-
-            <label class="declaration">
-
-                <input
-                    type="checkbox"
-                    id="declaration2"
-                    name="declaration2"
-                    required
-                >
-
-                <span>
-                    I agree to the terms and conditions of the
-                    scholarship application.
-                </span>
-
-            </label>
-
-        </section>
-
-
-        
-
-
-        <!-- ================================================= -->
-        <!-- SUBMIT -->
-        <!-- ================================================= -->
-
-        <button
-            type="submit"
-            id="submitButton"
-            class="submit-button"
-        >
-            Submit Scholarship Application
-        </button>
-
-
-        <p class="footer-note">
-            🛡️ Error Guard will verify your application before
-            final submission.
-        </p>
+        </div>
 
     </form>
 
@@ -966,5 +481,4 @@
 <script src="script.js"></script>
 
 </body>
-
 </html>
