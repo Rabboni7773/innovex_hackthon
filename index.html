@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Details</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <header class="header">
+        <h1>Personal Details</h1>
+        
+    </header>
+
+
+    <form id="personalForm">
+
+        <!-- ================= PERSONAL INFORMATION ================= -->
+        <section class="form-section">
+
+            <h2>Personal Information</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Enter your full name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="dob">Date of Birth *</label>
+                    <input
+                        type="date"
+                        id="dob"
+                        name="dob"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender *</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter email address"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Mobile Number *</label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Enter mobile number"
+                        maxlength="10"
+                        required
+                    >
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= IDENTITY DETAILS ================= -->
+        <section class="form-section">
+
+            <h2>Identity Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="aadhaarNumber">Aadhaar Number *</label>
+                    <input
+                        type="text"
+                        id="aadhaarNumber"
+                        name="aadhaarNumber"
+                        placeholder="Enter 12-digit Aadhaar number"
+                        maxlength="12"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="panNumber">PAN Number *</label>
+                    <input
+                        type="text"
+                        id="panNumber"
+                        name="panNumber"
+                        placeholder="Enter PAN number"
+                        maxlength="10"
+                        style="text-transform: uppercase;"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="dlNumber">Driving Licence Number</label>
+                    <input
+                        type="text"
+                        id="dlNumber"
+                        name="dlNumber"
+                        placeholder="Enter Driving Licence number"
+                    >
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= CONTACT DETAILS ================= -->
+        <section class="form-section">
+
+            <h2>Contact Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="alternatePhone">Alternate Mobile Number</label>
+                    <input
+                        type="tel"
+                        id="alternatePhone"
+                        name="alternatePhone"
+                        placeholder="Enter alternate mobile number"
+                        maxlength="10"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="emergencyContact">Emergency Contact Number</label>
+                    <input
+                        type="tel"
+                        id="emergencyContact"
+                        name="emergencyContact"
+                        placeholder="Enter emergency contact"
+                        maxlength="10"
+                    >
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= ACADEMIC DETAILS ================= -->
+        <section class="form-section">
+
+            <h2>Academic Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="qualification">Highest Qualification</label>
+                    <input
+                        type="text"
+                        id="qualification"
+                        name="qualification"
+                        placeholder="e.g. B.Tech"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="college">College / Institution</label>
+                    <input
+                        type="text"
+                        id="college"
+                        name="college"
+                        placeholder="Enter college name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="course">Course / Branch</label>
+                    <input
+                        type="text"
+                        id="course"
+                        name="course"
+                        placeholder="e.g. Computer Science"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="rollNumber">Roll Number</label>
+                    <input
+                        type="text"
+                        id="rollNumber"
+                        name="rollNumber"
+                        placeholder="Enter roll number"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="yearOfStudy">Year of Study</label>
+                    <select id="yearOfStudy" name="yearOfStudy">
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="percentage">Percentage / CGPA</label>
+                    <input
+                        type="text"
+                        id="percentage"
+                        name="percentage"
+                        placeholder="Enter percentage or CGPA"
+                    >
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= FAMILY DETAILS ================= -->
+        <section class="form-section">
+
+            <h2>Family Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="fatherName">Father's Name *</label>
+                    <input
+                        type="text"
+                        id="fatherName"
+                        name="fatherName"
+                        placeholder="Enter father's name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="motherName">Mother's Name *</label>
+                    <input
+                        type="text"
+                        id="motherName"
+                        name="motherName"
+                        placeholder="Enter mother's name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="fatherOccupation">Father's Occupation</label>
+                    <input
+                        type="text"
+                        id="fatherOccupation"
+                        name="fatherOccupation"
+                        placeholder="Enter occupation"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="motherOccupation">Mother's Occupation</label>
+                    <input
+                        type="text"
+                        id="motherOccupation"
+                        name="motherOccupation"
+                        placeholder="Enter occupation"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="familyIncome">Annual Family Income</label>
+                    <input
+                        type="number"
+                        id="familyIncome"
+                        name="familyIncome"
+                        placeholder="Enter annual family income"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="siblings">Number of Siblings</label>
+                    <input
+                        type="number"
+                        id="siblings"
+                        name="siblings"
+                        min="0"
+                        placeholder="Enter number of siblings"
+                    >
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= ADDRESS DETAILS ================= -->
+        <section class="form-section">
+
+            <h2>Address Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group full-width">
+                    <label for="address">Address *</label>
+                    <textarea
+                        id="address"
+                        name="address"
+                        rows="3"
+                        placeholder="Enter complete address"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City *</label>
+                    <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        placeholder="Enter city"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="district">District *</label>
+                    <input
+                        type="text"
+                        id="district"
+                        name="district"
+                        placeholder="Enter district"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="state">State *</label>
+                    <input
+                        type="text"
+                        id="state"
+                        name="state"
+                        placeholder="Enter state"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="pincode">PIN Code *</label>
+                    <input
+                        type="text"
+                        id="pincode"
+                        name="pincode"
+                        placeholder="Enter 6-digit PIN code"
+                        maxlength="6"
+                        required
+                    >
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= BANK DETAILS ================= -->
+        <section class="form-section">
+
+            <h2>Bank Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="accountHolderName">Account Holder Name *</label>
+                    <input
+                        type="text"
+                        id="accountHolderName"
+                        name="accountHolderName"
+                        placeholder="Enter account holder name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="accountNumber">Bank Account Number *</label>
+                    <input
+                        type="text"
+                        id="accountNumber"
+                        name="accountNumber"
+                        placeholder="Enter bank account number"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="ifsc">IFSC Code *</label>
+                    <input
+                        type="text"
+                        id="ifsc"
+                        name="ifsc"
+                        placeholder="Enter IFSC code"
+                        maxlength="11"
+                        style="text-transform: uppercase;"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="bankName">Bank Name *</label>
+                    <input
+                        type="text"
+                        id="bankName"
+                        name="bankName"
+                        placeholder="Enter bank name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="branchName">Branch Name</label>
+                    <input
+                        type="text"
+                        id="branchName"
+                        name="branchName"
+                        placeholder="Enter branch name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="accountType">Account Type</label>
+                    <select id="accountType" name="accountType">
+                        <option value="">Select Account Type</option>
+                        <option value="Savings">Savings</option>
+                        <option value="Current">Current</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+            </div>
+        </section>
+        <!-- ================= DOCUMENT / FILE DETAILS ================= -->
+<section class="form-section">
+
+    <h2>📄 Document Uploads</h2>
+
+    <p class="section-description">
+        Upload your documents for Error Guard verification.
+        Documents can be checked using OCR before application submission.
+    </p>
+
+    <div class="form-grid">
+
+        <!-- Aadhaar -->
+        <div class="form-group">
+            <label for="aadhaarFile">
+                Aadhaar Card
+            </label>
+
+            <input
+                type="file"
+                id="aadhaarFile"
+                name="aadhaarFile"
+                accept=".pdf,.jpg,.jpeg,.png"
+            >
+
+            <small>
+                PDF, JPG, JPEG or PNG
+            </small>
+
+            <div
+                id="aadhaarFileName"
+                class="file-status"
+            ></div>
+        </div>
+
+
+        <!-- PAN -->
+        <div class="form-group">
+
+            <label for="panFile">
+                PAN Card
+            </label>
+
+            <input
+                type="file"
+                id="panFile"
+                name="panFile"
+                accept=".pdf,.jpg,.jpeg,.png"
+            >
+
+            <small>
+                PDF, JPG, JPEG or PNG
+            </small>
+
+            <div
+                id="panFileName"
+                class="file-status"
+            ></div>
+
+        </div>
+
+
+        <!-- Driving Licence -->
+        <div class="form-group">
+
+            <label for="dlFile">
+                Driving Licence
+            </label>
+
+            <input
+                type="file"
+                id="dlFile"
+                name="dlFile"
+                accept=".pdf,.jpg,.jpeg,.png"
+            >
+
+            <small>
+                PDF, JPG, JPEG or PNG
+            </small>
+
+            <div
+                id="dlFileName"
+                class="file-status"
+            ></div>
+
+        </div>
+
+
+        <!-- Educational Certificate -->
+        <div class="form-group">
+
+            <label for="educationFile">
+                Educational Certificate
+            </label>
+
+            <input
+                type="file"
+                id="educationFile"
+                name="educationFile"
+                accept=".pdf,.jpg,.jpeg,.png"
+            >
+
+            <small>
+                Degree / Marks Memo / Certificate
+            </small>
+
+            <div
+                id="educationFileName"
+                class="file-status"
+            ></div>
+
+        </div>
+
+
+        <!-- Address Proof -->
+        <div class="form-group">
+
+            <label for="addressProofFile">
+                Address Proof
+            </label>
+
+            <input
+                type="file"
+                id="addressProofFile"
+                name="addressProofFile"
+                accept=".pdf,.jpg,.jpeg,.png"
+            >
+
+            <small>
+                Upload address proof
+            </small>
+
+            <div
+                id="addressProofFileName"
+                class="file-status"
+            ></div>
+
+        </div>
+
+
+        <!-- Bank Proof -->
+        <div class="form-group">
+
+            <label for="bankProofFile">
+                Bank Proof
+            </label>
+
+            <input
+                type="file"
+                id="bankProofFile"
+                name="bankProofFile"
+                accept=".pdf,.jpg,.jpeg,.png"
+            >
+
+            <small>
+                Passbook / Bank statement / Cancelled cheque
+            </small>
+
+            <div
+                id="bankProofFileName"
+                class="file-status"
+            ></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+   
+
+        <!-- ================= SUBMIT ================= -->
+        <div class="submit-area">
+
+            <button
+                type="submit"
+                id="submitButton"
+                class="submit-button"
+            >
+                Submit Details
+            </button>
+
+            
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
